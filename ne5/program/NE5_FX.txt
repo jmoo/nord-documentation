@@ -1,0 +1,173 @@
+######################################################
+
+Nord Electro 5 program file (extension ne5p)
+Effects section 0x93 to 0x9f, plus three settings at 0xa1.
+
+Every effect has a part select that doubles as its on/off. The stored value is
+one higher than the panel position, so 1 is off and 2 is the lower part.
+
+######################################################
+
+Effect 1 part select
+Offset in file 0x93 (b7-b6)
+1 = OFF
+2 = Lower
+3 = Upper
+
+Effect 1 type
+Offset in file 0x93 (b5-b2)
+0 = TREM1
+1 = TREM2
+2 = TREM1&2
+3 = PAN1
+4 = PAN2
+5 = PAN1&2
+6 = WAH
+7 = RM
+Note the ordering: the stored values are not in panel order.
+
+Effect 1 rate
+Offset in file 0x93 (b1-b0) and 0x94 (b7-b3)
+linear scale 0 - 127, shown as 0 - 10 on the panel
+
+Effect 1 control pedal
+Offset in file 0xa1 (b4)
+0 = OFF
+1 = ON
+
+######################################################
+
+Effect 2 part select
+Offset in file 0x94 (b2-b1)
+1 = OFF
+2 = Lower
+3 = Upper
+
+Effect 2 type
+Offset in file 0x94 (b0) and 0x95 (b7-b5)
+0 = PHAS1
+1 = PHAS2
+2 = FLANGE
+3 = CHOR1
+4 = CHOR2
+5 = VIBE
+Note the ordering: the stored values are not in panel order.
+
+Effect 2 rate
+Offset in file 0x95 (b4-b0) and 0x96 (b7-b6)
+linear scale 0 - 127, 0 = 0 Hz to 127 = 10.5 Hz
+
+Effect 2 deep
+Offset in file 0xa1 (b3)
+0 = OFF
+1 = ON
+
+######################################################
+
+Effect 3 (Speaker/Comp) part select
+Offset in file 0x9c (b4-b3)
+1 = OFF
+2 = Lower
+3 = Upper
+
+Effect 3 type
+Offset in file 0x9c (b2-b0)
+0 = None
+1 = Small
+2 = JC
+3 = Twin
+4 = Rotary
+5 = Comp
+Note the ordering: the stored values are not in panel order.
+
+Effect 3 compression
+Offset in file 0x9d (b7-b1)
+linear scale 0 - 127, shown as 0 - 10 on the panel
+
+######################################################
+
+Delay part select
+Offset in file 0x96 (b5-b4)
+1 = OFF
+2 = Lower
+3 = Upper
+
+Delay feedback
+Offset in file 0x96 (b3-b2)
+0 to 3
+
+Delay tempo
+Offset in file 0x96 (b1-b0) and 0x97 (b7-b3)
+0 - 127, running backwards: 0 = 750 ms and 127 = 20 ms
+
+Delay wet/dry
+Offset in file 0x97 (b2-b0) and 0x98 (b7-b4)
+linear scale 0 - 127, shown as 0 - 10 on the panel
+
+Delay ping pong
+Offset in file 0x98 (b3)
+0 = OFF
+1 = ON
+
+######################################################
+
+Reverb On/Off
+Offset in file 0x9d (b0)
+0 = OFF
+1 = ON
+
+Reverb type
+Offset in file 0x9e (b7-b5)
+0 = Room
+1 = Stage Soft
+2 = Stage
+3 = Hall Soft
+4 = Hall
+Note the ordering: the stored values are not in panel order.
+
+Reverb wet/dry
+Offset in file 0x9e (b4-b0) and 0x9f (b7-b6)
+linear scale 0 - 127, shown as 0 - 10 on the panel
+
+######################################################
+
+Equalizer On/Off
+Offset in file 0x98 (b2)
+0 = OFF
+1 = ON
+
+Equalizer part select
+Offset in file 0xa1 (b2-b1)
+0 = Lower
+1 = Upper
+2 = Lower + Upper
+Note: 0 means Lower, not off. Whether the equalizer is engaged at all is the
+separate bit at 0x98 (b2), so the two have to be read together.
+
+Equalizer bass
+Offset in file 0x9b (b3-b0) and 0x9c (b7-b5)
+linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+
+Equalizer mid frequency
+Offset in file 0x98 (b0) and 0x99 (b7-b2)
+linear scale 0 - 127, 0 = 200 Hz to 127 = 8 kHz
+
+Equalizer mid gain
+Offset in file 0x9a (b2-b0) and 0x9b (b7-b4)
+linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+
+Equalizer treble
+Offset in file 0x99 (b1-b0) and 0x9a (b7-b3)
+linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+
+######################################################
+
+Rotary speaker stop mode
+Offset in file 0x9f (b5)
+0 = OFF
+1 = ON
+
+Rotary speaker speed
+Offset in file 0x9f (b4)
+0 = Slow
+1 = Fast

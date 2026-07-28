@@ -1,0 +1,155 @@
+######################################################
+
+Nord Electro 5 program file (extension ne5p)
+File is 165 bytes: 44-byte header + 121-byte body.
+
+######################################################
+
+Clavia ID
+Offset in file 0x00 to 0x03
+ascii C B I N (0x43 0x42 0x49 0x4E)
+
+File format
+Offset in file 0x04 to 0x07 (little endian)
+0 = legacy header, no checksum
+1 = header with checksum (written by Nord Sound Manager 7.40 and later)
+
+NE5 Program file ID
+Offset in file 0x08 to 0x0b
+ascii n e 5 p (0x6E 0x65 0x35 0x70)
+
+Bank
+Offset in file 0x0c to 0x0d (little endian)
+0 = bank 1, 1 = bank 2 . . . 7 = bank 8
+
+Location
+Offset in file 0x0e to 0x0f (little endian)
+0 = location 1, 1 = location 2 . . . 49 = location 50
+
+Unused
+Offset in file 0x10 to 0x13
+always 0xFFFFFFFF
+
+Program version
+Offset in file 0x14 to 0x17 (little endian)
+always 4 on every file seen (628 programs)
+
+Checksum
+Offset in file 0x18 to 0x1b (little endian)
+CRC-32 (ISO-HDLC / zlib) over 0x2c to 0xa4 inclusive
+
+Unused
+Offset in file 0x1c to 0x2b
+always 0
+
+######################################################
+
+Program version (repeated in body)
+Offset in file 0x2c to 0x2d (big endian)
+always 4
+
+Lower part
+Offset in file 0x2e (b7-b5)
+0 = Organ
+1 = Piano
+2 = Sample
+
+Upper part
+Offset in file 0x2e (b4-b2)
+0 = Organ
+1 = Piano
+2 = Sample
+
+Lower octave shift
+Offset in file 0x2e (b1-b0) and 0x2f (b7-b6)
+0 = -6 . . . 6 = 0 . . . 12 = +6
+
+Upper octave shift
+Offset in file 0x2f (b5-b2)
+0 = -6 . . . 6 = 0 . . . 12 = +6
+
+Lower sustain pedal
+Offset in file 0x2f (b1)
+0 = OFF
+1 = ON
+
+Upper sustain pedal
+Offset in file 0x2f (b0)
+0 = OFF
+1 = ON
+
+Lower control pedal
+Offset in file 0x30 (b7)
+0 = OFF
+1 = ON
+
+Upper control pedal
+Offset in file 0x30 (b6)
+0 = OFF
+1 = ON
+
+Unknown
+Offset in file 0x30 (b5)
+always 0 on every file seen
+
+Split On/Off
+Offset in file 0x30 (b4)
+0 = OFF
+1 = ON
+
+Split point
+Offset in file 0x30 (b3-b1)
+0 = C3
+1 = F3
+2 = C4
+3 = F4
+4 = C5
+5 = F5
+6 = Upper
+7 = Lower
+
+Transpose On/Off
+Offset in file 0x30 (b0)
+0 = OFF
+1 = ON
+Note: the keyboard sometimes leaves this ON with a transpose of 0, and shows no
+transpose light when that happens.
+
+Transpose
+Offset in file 0x31 (b7-b4)
+0 = -6 . . . 6 = 0 . . . 12 = +6
+
+Part mix (lower/upper balance)
+Offset in file 0x31 (b3-b0) and 0x32 (b7-b5)
+linear scale 0 - 127
+
+Gain
+Offset in file 0x32 (b4-b0) and 0x33 (b7-b6)
+linear scale 0 - 127, shown as 0 - 10 on the panel
+
+Organ model
+Offset in file 0x33 (b5-b3)
+0 = B3
+1 = B3 + Bass
+2 = Pipe
+3 = Vox
+4 = Farfisa
+
+Lower enabled
+Offset in file 0x33 (b2)
+0 = OFF
+1 = ON
+
+Upper enabled
+Offset in file 0x33 (b1)
+0 = OFF
+1 = ON
+
+Drawbar Live/Sync
+Offset in file 0x33 (b0)
+0 = Sync
+1 = Live
+
+Unused
+Offset in file 0x34 to 0x39
+always 0 on every file seen

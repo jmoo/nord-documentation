@@ -1,0 +1,113 @@
+######################################################
+
+Nord Electro 5 program file (extension ne5p)
+Organ section 0x4e to 0x92.
+
+The file keeps the complete state of all four organ models and both presets at
+all times, not just the selected one. Which model is selected is in
+NE5_Common.txt at 0x33 (b5-b3).
+
+######################################################
+
+Drawbars
+9 drawbars per model and preset, packed one per nibble, high nibble first.
+Each nibble is the physical drawbar position, 0 to 8, stored as its own value.
+
+Offset in file, first of the 9 nibbles:
+B3       preset 1 = 0x55    preset 2 = 0x5c
+Vox      preset 1 = 0x67    preset 2 = 0x6d
+Farfisa  preset 1 = 0x77    preset 2 = 0x7d
+Pipe     preset 1 = 0x87    preset 2 = 0x8d
+
+Note on Farfisa: the panel has on/off tabs rather than continuous drawbars. The
+file still stores a 0 to 8 position per tab, and 5 or higher reads as ON, below
+5 as OFF. The exact position below or above the threshold varies between files
+that show the same tab state.
+
+Selected preset
+Offset in file 0x53 (b6) for B3, 0x65 (b6) for Vox, 0x75 (b6) for Farfisa,
+0x85 (b6) for Pipe
+0 = preset 1
+1 = preset 2
+
+######################################################
+
+Vibrato/Chorus On/Off - per model AND per preset
+Offset in file:
+B3       preset 1 = 0x59 (b3)   preset 2 = 0x60 (b3)
+Vox      preset 1 = 0x6b (b3)   preset 2 = 0x71 (b3)
+Farfisa  preset 1 = 0x7b (b3)   preset 2 = 0x81 (b3)
+0 = OFF
+1 = ON
+Pipe has no vibrato/chorus.
+
+Vibrato/Chorus type - per model, shared by both presets
+Offset in file 0x51 (b7-b5) for B3, 0x63 (b7-b5) for Vox, 0x73 (b7-b5) for Farfisa
+
+Each model offers a different set of modes, so the same stored value means
+different things depending on the model.
+
+B3:
+0 = V1
+1 = C1
+2 = V2
+3 = C2
+4 = V3
+5 = C3
+
+Vox:
+0 = V1
+1 = V2
+2 = V3
+
+Farfisa:
+0 = V1
+1 = V2
+2 = C2
+3 = C3
+
+######################################################
+
+B3 Percussion On/Off - per preset
+Offset in file 0x59 (b2) for preset 1, 0x60 (b2) for preset 2
+0 = OFF
+1 = ON
+
+B3 Percussion third harmonic
+Offset in file 0x51 (b4)
+0 = OFF (second harmonic)
+1 = ON (third harmonic)
+
+B3 Percussion speed
+Offset in file 0x51 (b3-b2)
+0 = Off
+2 = Soft
+1 = Fast
+3 = Both
+Note the ordering: the stored values are not in panel order.
+
+######################################################
+
+B3 + Bass, preset 1 bass drawbars
+
+When the organ model is B3 + Bass (0x33 b5-b3 = 1), the two presets are
+different instruments. Preset 1 is the bass manual and only its first two
+drawbars do anything; preset 2 is an ordinary B3 and uses the normal nine
+nibbles at 0x5c.
+
+The bass registration is NOT in preset 1's nine-nibble block at 0x55, which
+holds stale values in this mode. It is a 12-bit field:
+
+field = ((byte at 0x59 AND 0x0F) << 8) OR (byte at 0x5a)
+bass drawbar 1 = (field >> 6) AND 0x0F
+bass drawbar 2 = (field >> 2) AND 0x0F
+
+Values are the physical position 0 to 8, stored as themselves. The low 2 bits of
+the field are unused.
+
+0x59 is shared with other settings, so reading the byte on its own looks like
+nonsense:
+b7-b4 = drawbar 9 of the nine-nibble block
+b3    = B3 vibrato/chorus on, preset 1
+b2    = B3 percussion on, preset 1
+b1-b0 = high 2 bits of the bass field

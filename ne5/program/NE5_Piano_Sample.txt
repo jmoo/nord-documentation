@@ -1,0 +1,88 @@
+######################################################
+
+Nord Electro 5 program file (extension ne5p)
+Piano section 0x3a to 0x41, Sample section 0x46 to 0x4d.
+
+######################################################
+
+Piano category
+Offset in file 0x3a (b7-b5)
+0 = Grand
+1 = Upright
+2 = Electric Piano 1
+3 = Electric Piano 2
+4 = Clavinet
+5 = Harpsichord
+
+Piano model
+Offset in file 0x3a (b2-b0) and 0x3b (b7-b6)
+0 = first model in the category, 1 = second . . .
+
+Note: category and model together are the piano's position in the instrument's
+library. The library is organised one bank per category, so category is the bank
+and model is the slot within it, both counted from 0. Verified against three
+pianos read back over USB: Royal Grand 3D (bank 1 slot 1) stores 0/0, Studio
+Grand 2 (bank 1 slot 3) stores 0/2, and EPiano 2 Mk I ClosIdeal (bank 3 slot 2)
+stores 2/1. These are positions, so they move if the library is reorganised -
+the piano ID below is the stable reference.
+
+Clavinet model
+Offset in file 0x3b (b0) and 0x3c (b7)
+
+Piano acoustics
+Offset in file 0x3c (b6-b5)
+
+Piano touch
+Offset in file 0x3c (b4-b3)
+
+Piano mono
+Offset in file 0x3c (b2)
+0 = OFF
+1 = ON
+
+Piano ID
+Offset in file 0x3c (b1-b0) and 0x3d to 0x3f and 0x40 (b7-b2)
+32-bit identifier of the piano (.npno) this program depends on
+0 = no piano referenced
+
+Note: this is the identity of the piano, independent of where it sits in the
+library. The instrument reports the same value when asked for a program's
+dependencies over USB, which is how a program can be matched to the piano it
+needs. Example: 0xD303B5F2 is "Royal Grand 3D YaS6 XL 5.4".
+
+Unused
+Offset in file 0x41 to 0x45
+always 0 on every file seen
+
+######################################################
+
+Sample attack
+Offset in file 0x46 (b7-b1)
+linear scale 0 - 127
+
+Sample decay/release
+Offset in file 0x46 (b0) and 0x47 (b7-b2)
+linear scale 0 - 127
+
+Sample number
+Offset in file 0x47 (b1-b0) and 0x48 (b7-b2)
+position of the sample in the Samp Lib, counted from 0
+(0 = the sample shown as 1 on the panel)
+
+Note: this is a panel position only. It does not match the sample's slot in the
+instrument's sample library, and it is reused - the same number appears against
+different samples, and the same sample appears under different numbers. Use the
+sample ID below to identify a sample.
+
+Sample ID
+Offset in file 0x48 (b1-b0) and 0x49 to 0x4b and 0x4c (b7-b2)
+32-bit identifier of the sample (.nsmp) this program depends on
+0 = no sample referenced
+
+Sample dynamics
+Offset in file 0x4c (b1-b0)
+
+Sample filter
+Offset in file 0x4d (b7)
+0 = OFF
+1 = ON
