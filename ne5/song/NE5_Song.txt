@@ -1,0 +1,86 @@
+######################################################
+
+Nord Electro 5 song file (extension ne5t)
+File is 62 bytes: 44-byte header + 18-byte body.
+
+A song is a set of four program slots, A to D. The Electro 5 holds 4 banks of
+50 songs.
+
+######################################################
+
+Clavia ID
+Offset in file 0x00 to 0x03
+ascii C B I N (0x43 0x42 0x49 0x4E)
+
+File format
+Offset in file 0x04 to 0x07 (little endian)
+0 = legacy header, no checksum
+1 = header with checksum (written by Nord Sound Manager 7.40 and later)
+
+NE5 Song file ID
+Offset in file 0x08 to 0x0b
+ascii n e 5 t (0x6E 0x65 0x35 0x74)
+
+Bank
+Offset in file 0x0c to 0x0d (little endian)
+0 = bank 1, 1 = bank 2, 2 = bank 3, 3 = bank 4
+
+Location
+Offset in file 0x0e to 0x0f (little endian)
+0 = location 1, 1 = location 2 . . . 49 = location 50
+
+Unused
+Offset in file 0x10 to 0x13
+always 0xFFFFFFFF
+
+Song version
+Offset in file 0x14 to 0x17 (little endian)
+0 = the songs shipped on the instrument from the factory
+1 = any song written or edited by the user
+
+Checksum
+Offset in file 0x18 to 0x1b (little endian)
+CRC-32 (ISO-HDLC / zlib) over 0x2c to 0x3d inclusive
+
+Unused
+Offset in file 0x1c to 0x2b
+always 0
+
+######################################################
+
+Song version, repeated in the body
+Offset in file 0x2c to 0x2d (big endian)
+same value as the header field at 0x14
+
+Note: this is the only difference between a version 0 and a version 1 song.
+Across 64 files the two copies always agree, and nothing else in the body
+changes with the version. The body is also the only part the instrument sends
+when a song is read from it - the header is not transmitted - so this looks like
+the version being carried where the receiving side can see it.
+
+Program slot A
+Offset in file 0x2e (b7-b0) and 0x2f (b7)
+
+Program slot B
+Offset in file 0x2f (b6-b0) and 0x30 (b7-b6)
+
+Program slot C
+Offset in file 0x30 (b5-b0) and 0x31 (b7-b5)
+
+Program slot D
+Offset in file 0x31 (b4-b0) and 0x32 (b7-b4)
+
+Each slot is a 9-bit program location, counted straight through the program
+banks:
+
+    value = (program bank - 1) * 50 + (program location - 1)
+
+so 0 = program 1:1, 49 = program 1:50, 50 = program 2:1 . . . 399 = program 8:50.
+
+Unused
+Offset in file 0x32 (b3-b0) and 0x33
+always 0
+
+Unused
+Offset in file 0x34 to 0x3d
+always 0
