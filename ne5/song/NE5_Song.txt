@@ -1,10 +1,15 @@
 ######################################################
 
 Nord Electro 5 song file (extension ne5t)
-File is 62 bytes: 44-byte header + 18-byte body.
+File is 62 bytes: 44-byte header + 18-byte body (file format 1).
+A file format 0 song is 44 bytes: 24-byte header + 18-byte body + 2-byte
+checksum.
 
 A song is a set of four program slots, A to D. The Electro 5 holds 4 banks of
 50 songs.
+
+The song name is not stored in the file. The instrument keeps it separately
+(16 bytes) and sends it next to the body over USB.
 
 ######################################################
 
@@ -14,7 +19,8 @@ ascii C B I N (0x43 0x42 0x49 0x4E)
 
 File format
 Offset in file 0x04 to 0x07 (little endian)
-0 = legacy header, no checksum
+0 = legacy header without 0x18 to 0x2b, so the body starts at 0x18; the
+    checksum is a CRC-16 after the body instead (see the end of this file)
 1 = header with checksum (written by Nord Sound Manager 7.40 and later)
 
 NE5 Song file ID
@@ -36,27 +42,37 @@ always 0xFFFFFFFF
 Song version
 Offset in file 0x14 to 0x17 (little endian)
 0 = the songs shipped on the instrument from the factory
-1 = any song written or edited by the user
+1 = any song the instrument has written, by the user or as a side effect
 
-Checksum
+The instrument never writes version 0. A factory song becomes version 1 as soon
+as the instrument rewrites it, even when nothing asked for that: moving a
+program rewrites every song that uses it.
+
+Checksum (file format 1 only)
 Offset in file 0x18 to 0x1b (little endian)
 CRC-32 (ISO-HDLC / zlib) over 0x2c to 0x3d inclusive
 
-Unused
+Unused (file format 1 only)
 Offset in file 0x1c to 0x2b
 always 0
 
 ######################################################
 
+Offsets below are for file format 1. In a file format 0 song the body starts
+at 0x18: subtract 0x14.
+
 Song version, repeated in the body
 Offset in file 0x2c to 0x2d (big endian)
 same value as the header field at 0x14
 
-Note: this is the only difference between a version 0 and a version 1 song.
-Across 64 files the two copies always agree, and nothing else in the body
-changes with the version. The body is also the only part the instrument sends
-when a song is read from it - the header is not transmitted - so this looks like
-the version being carried where the receiving side can see it.
+Only 0 and 1 have been seen, so in practice this is a single bit, 0x2d (b0);
+the rest of 0x2c to 0x2d is always 0.
+
+Note: apart from the header field at 0x14 (and so the checksum), this is the
+only difference between a version 0 and a version 1 song. The two copies always
+agree, and nothing else in the body changes with the version. The body is also the only part the instrument sends when a song is read from
+it - the header is not transmitted - so this looks like the version being
+carried where the receiving side can see it.
 
 Program slot A
 Offset in file 0x2e (b7-b0) and 0x2f (b7)
@@ -76,6 +92,11 @@ banks:
     value = (program bank - 1) * 50 + (program location - 1)
 
 so 0 = program 1:1, 49 = program 1:50, 50 = program 2:1 . . . 399 = program 8:50.
+400 to 511 are never seen.
+
+Moving a program on the instrument rewrites the slots of every song that uses
+it, so they follow the program. Deleting a program does not: the slots keep
+pointing at the now empty location.
 
 Unused
 Offset in file 0x32 (b3-b0) and 0x33
@@ -84,3 +105,10 @@ always 0
 Unused
 Offset in file 0x34 to 0x3d
 always 0
+
+######################################################
+
+Checksum (file format 0 only)
+Offset in file 0x2a to 0x2b (little endian)
+CRC-16 (IBM-3740 / CCITT-FALSE) over 0x00 to 0x29 inclusive - the whole file
+before it, header included

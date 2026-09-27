@@ -1,0 +1,92 @@
+######################################################
+
+Nord Electro 5 live file (extension ne5l)
+File is 165 bytes: 44-byte header + 121-byte body.
+
+The Electro 5 has three Live slots, Live 1 to Live 3. A live file holds one of
+them. Nord Sound Manager exports them as Live 1.ne5l to Live 3.ne5l, and a full
+backup (ne5b) carries them as Live/Live/Live 1.ne5l and so on.
+
+The body is the program body. A live file and a program file (ne5p) have the
+same size and the same 121-byte body at 0x2c to 0xa4, byte for byte, so every
+offset in the program docs applies to a live file unchanged:
+
+    ne5/program/NE5_Common.txt
+    ne5/program/NE5_Piano_Sample.txt
+    ne5/program/NE5_Organ.txt
+    ne5/program/NE5_FX.txt
+
+Only the header differs, and only in the file ID and in what the location means.
+Both are listed below.
+
+######################################################
+
+Clavia ID
+Offset in file 0x00 to 0x03
+ascii C B I N (0x43 0x42 0x49 0x4E)
+
+File format
+Offset in file 0x04 to 0x07 (little endian)
+0 = legacy header: no 0x18 to 0x2b block, body at 0x18, CRC-16 at end of file
+    (147-byte file, see note)
+1 = header with checksum (written by Nord Sound Manager 7.40 and later)
+
+Note: a format 0 file drops the checksum at 0x18 and the 16 unused bytes at
+0x1c to 0x2b, so the body starts at 0x18, and it adds a 2-byte checksum at the
+very end of the file: CRC-16 (CCITT-FALSE parameters: poly 0x1021, init 0xFFFF)
+over every byte before it, little endian. The factory Live 1-3 files (OS 1.44)
+are this format. This is the same for ne5p files.
+
+NE5 Live file ID
+Offset in file 0x08 to 0x0b
+ascii n e 5 l (0x6E 0x65 0x35 0x6C)
+This is the only thing that tells a live file from a program file.
+
+Bank
+Offset in file 0x0c to 0x0d (little endian)
+always 0
+
+Location
+Offset in file 0x0e to 0x0f (little endian)
+0 = Live 1
+1 = Live 2
+2 = Live 3
+
+Note: this is the same header word a program file uses for bank and location,
+but here it addresses the three Live slots, not the 8 banks of 50 programs. A
+live file has no program bank or program location.
+
+Unused
+Offset in file 0x10 to 0x13
+always 0xFFFFFFFF
+
+Live version
+Offset in file 0x14 to 0x17 (little endian)
+always 4 on every file seen, the same as ne5p
+
+Checksum
+Offset in file 0x18 to 0x1b (little endian)
+CRC-32 (ISO-HDLC / zlib) over 0x2c to 0xa4 inclusive
+
+Unused
+Offset in file 0x1c to 0x2b
+always 0
+
+######################################################
+
+Body
+Offset in file 0x2c to 0xa4
+identical to the ne5p program body, see the program docs listed above.
+0x2c to 0x2d repeats the version (big endian), always 4.
+
+######################################################
+
+Note: the same panel state read from the instrument once as Live 1 and once as
+program 5:40 gave byte-identical 121-byte bodies.
+
+Note: because the CRC-32 only covers the body, a format 1 live file and a
+format 1 program file with the same body and the same location word differ in
+one byte only, 0x0b ('l' against 'p'). To turn one into the other, change the
+file ID and set the location for the new slot space; the checksum at 0x18 stays
+valid. For a format 0 file the CRC-16 at the end covers the header as well, so
+it must be recomputed after any header change.

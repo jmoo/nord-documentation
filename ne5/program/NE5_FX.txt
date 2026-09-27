@@ -1,16 +1,20 @@
 ######################################################
 
 Nord Electro 5 program file (extension ne5p)
-Effects section 0x93 to 0x9f, plus three settings at 0xa1.
+Effects section 0x93 to 0x9f, plus three settings at 0xa1. The section runs to
+the end of the file at 0xa4; the rest of it is unused (see the end).
 
-Every effect has a part select that doubles as its on/off. The stored value is
-one higher than the panel position, so 1 is off and 2 is the lower part.
+Effects 1, 2, 3 and the delay each have a part select that doubles as its
+on/off. 0 is off, 2 is the lower part and 3 is the upper part. 1 also means
+off: older firmware wrote off as 1, and the keyboard still treats it as off
+and keeps it when the program is stored again. Current firmware writes 0.
 
 ######################################################
 
 Effect 1 part select
 Offset in file 0x93 (b7-b6)
-1 = OFF
+0 = OFF
+1 = OFF (written by older firmware)
 2 = Lower
 3 = Upper
 
@@ -28,7 +32,7 @@ Note the ordering: the stored values are not in panel order.
 
 Effect 1 rate
 Offset in file 0x93 (b1-b0) and 0x94 (b7-b3)
-linear scale 0 - 127, shown as 0 - 10 on the panel
+linear scale 0 - 127, shown as 1 - 10 on the panel
 
 Effect 1 control pedal
 Offset in file 0xa1 (b4)
@@ -39,7 +43,8 @@ Offset in file 0xa1 (b4)
 
 Effect 2 part select
 Offset in file 0x94 (b2-b1)
-1 = OFF
+0 = OFF
+1 = OFF (written by older firmware)
 2 = Lower
 3 = Upper
 
@@ -55,7 +60,7 @@ Note the ordering: the stored values are not in panel order.
 
 Effect 2 rate
 Offset in file 0x95 (b4-b0) and 0x96 (b7-b6)
-linear scale 0 - 127, 0 = 0 Hz to 127 = 10.5 Hz
+0 - 127, 0 = 0 Hz to 127 = 10.5 Hz, the curve in between is not known
 
 Effect 2 deep
 Offset in file 0xa1 (b3)
@@ -66,7 +71,8 @@ Offset in file 0xa1 (b3)
 
 Effect 3 (Speaker/Comp) part select
 Offset in file 0x9c (b4-b3)
-1 = OFF
+0 = OFF
+1 = OFF (written by older firmware)
 2 = Lower
 3 = Upper
 
@@ -88,7 +94,8 @@ linear scale 0 - 127, shown as 0 - 10 on the panel
 
 Delay part select
 Offset in file 0x96 (b5-b4)
-1 = OFF
+0 = OFF
+1 = OFF (written by older firmware)
 2 = Lower
 3 = Upper
 
@@ -136,6 +143,10 @@ Offset in file 0x98 (b2)
 0 = OFF
 1 = ON
 
+Unused
+Offset in file 0x98 (b1)
+always 0 on every file seen
+
 Equalizer part select
 Offset in file 0xa1 (b2-b1)
 0 = Lower
@@ -146,19 +157,19 @@ separate bit at 0x98 (b2), so the two have to be read together.
 
 Equalizer bass
 Offset in file 0x9b (b3-b0) and 0x9c (b7-b5)
-linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+0 - 127, 0 = -15 dB, 64 = 0 dB (centre), 127 = +15 dB
 
 Equalizer mid frequency
 Offset in file 0x98 (b0) and 0x99 (b7-b2)
-linear scale 0 - 127, 0 = 200 Hz to 127 = 8 kHz
+0 - 127, 0 = 200 Hz to 127 = 8 kHz, the curve in between is not known
 
 Equalizer mid gain
 Offset in file 0x9a (b2-b0) and 0x9b (b7-b4)
-linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+0 - 127, 0 = -15 dB, 64 = 0 dB (centre), 127 = +15 dB
 
 Equalizer treble
 Offset in file 0x99 (b1-b0) and 0x9a (b7-b3)
-linear scale 0 - 127, 0 = -15 dB to 127 = +15 dB
+0 - 127, 0 = -15 dB, 64 = 0 dB (centre), 127 = +15 dB
 
 ######################################################
 
@@ -171,3 +182,19 @@ Rotary speaker speed
 Offset in file 0x9f (b4)
 0 = Slow
 1 = Fast
+
+######################################################
+
+Unused
+Offset in file 0x9f (b3)
+always 0 on every file seen
+
+Unused
+Offset in file 0x9f (b2-b0), 0xa0, and 0xa1 (b7-b5)
+not read by the keyboard. Usually 0, but some older files carry other values
+here. They make no difference to the sound or the panel, and storing the
+program on the keyboard keeps them unchanged.
+
+Unused
+Offset in file 0xa1 (b0) and 0xa2 to 0xa4
+always 0 on every file seen

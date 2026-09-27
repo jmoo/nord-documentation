@@ -30,6 +30,10 @@ Offset in file 0x53 (b6) for B3, 0x65 (b6) for Vox, 0x75 (b6) for Farfisa,
 0 = preset 1
 1 = preset 2
 
+Unused
+Offset in file 0x54
+always 0. The keyboard writes 0 here every time a program is stored.
+
 ######################################################
 
 Vibrato/Chorus On/Off - per model AND per preset
@@ -39,7 +43,10 @@ Vox      preset 1 = 0x6b (b3)   preset 2 = 0x71 (b3)
 Farfisa  preset 1 = 0x7b (b3)   preset 2 = 0x81 (b3)
 0 = OFF
 1 = ON
-Pipe has no vibrato/chorus.
+Pipe has no vibrato/chorus. Its 0x8b (b3), where the other models keep the
+preset 1 flag, is 1 in almost every file, but the vibrato/chorus button does
+not respond while Pipe is selected, so the bit cannot be changed from the panel.
+Treat it as unused.
 
 Vibrato/Chorus type - per model, shared by both presets
 Offset in file 0x51 (b7-b5) for B3, 0x63 (b7-b5) for Vox, 0x73 (b7-b5) for Farfisa
@@ -96,18 +103,37 @@ drawbars do anything; preset 2 is an ordinary B3 and uses the normal nine
 nibbles at 0x5c.
 
 The bass registration is NOT in preset 1's nine-nibble block at 0x55, which
-holds stale values in this mode. It is a 12-bit field:
+holds stale values in this mode. It is a 10-bit field:
 
-field = ((byte at 0x59 AND 0x0F) << 8) OR (byte at 0x5a)
+field = ((byte at 0x59 AND 0x03) << 8) OR (byte at 0x5a)
 bass drawbar 1 = (field >> 6) AND 0x0F
 bass drawbar 2 = (field >> 2) AND 0x0F
 
 Values are the physical position 0 to 8, stored as themselves. The low 2 bits of
-the field are unused.
+the field are unused. That is, bass drawbar 1 is 0x59 (b1-b0) and 0x5a (b7-b6),
+bass drawbar 2 is 0x5a (b5-b2), and 0x5a (b1-b0) is unused.
+
+Moving bass drawbars 1 and 2 does not change the first two nibbles at 0x55; they
+keep whatever was there before, which is neither 0 nor the bass values.
 
 0x59 is shared with other settings, so reading the byte on its own looks like
 nonsense:
 b7-b4 = drawbar 9 of the nine-nibble block
 b3    = B3 vibrato/chorus on, preset 1
 b2    = B3 percussion on, preset 1
-b1-b0 = high 2 bits of the bass field
+b1-b0 = high 2 bits of the bass field (bass drawbar 1)
+Mask with 0x03 as above, otherwise b3 and b2 leak into bass drawbar 1. Whether
+the bass manual responds to the preset 1 vibrato/chorus and percussion bits is
+not known.
+
+######################################################
+
+B3 + Bass, preset 2 (unused bits)
+Offset in file 0x60 (b1-b0) and 0x61 (b7-b2)
+
+In B3 + Bass, preset 2 is an ordinary B3: it has no bass manual, and its
+drawbars are the normal nine nibbles at 0x5c. These bits sit where a preset 2
+copy of the bass field at 0x59/0x5a would be, with the same layout, and fresh
+programs hold 8 and 8 in them (0x60 b1-b0 = 2, 0x61 = 0x20). The keyboard
+(firmware v2.04) neither reads nor writes them: other values put here change
+nothing, and storing the program keeps whatever was here. Treat them as unused.

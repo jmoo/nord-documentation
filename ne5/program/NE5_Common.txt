@@ -2,6 +2,13 @@
 
 Nord Electro 5 program file (extension ne5p)
 File is 165 bytes: 44-byte header + 121-byte body.
+A file with file format 0 is 147 bytes: 24-byte header + the same 121-byte body
++ 2-byte checksum. Offsets below are for file format 1. In a file format 0 file
+the body starts at 0x18, so every body offset is 0x14 lower.
+
+A live slot file (extension ne5l) is the same layout with file ID n e 5 l. Its
+bank is always 0 and its location is 0 - 2 (Live 1 - 3). See
+ne5/live/NE5_Live.txt.
 
 ######################################################
 
@@ -11,8 +18,9 @@ ascii C B I N (0x43 0x42 0x49 0x4E)
 
 File format
 Offset in file 0x04 to 0x07 (little endian)
-0 = legacy header, no checksum
+0 = legacy header: no 0x18 to 0x2b block, body at 0x18, CRC-16 at end of file
 1 = header with checksum (written by Nord Sound Manager 7.40 and later)
+The factory programs are file format 0.
 
 NE5 Program file ID
 Offset in file 0x08 to 0x0b
@@ -32,15 +40,21 @@ always 0xFFFFFFFF
 
 Program version
 Offset in file 0x14 to 0x17 (little endian)
-always 4 on every file seen (628 programs)
+always 4 on every file seen
 
-Checksum
+Checksum (file format 1 only)
 Offset in file 0x18 to 0x1b (little endian)
 CRC-32 (ISO-HDLC / zlib) over 0x2c to 0xa4 inclusive
+The header is not covered.
 
-Unused
+Unused (file format 1 only)
 Offset in file 0x1c to 0x2b
 always 0
+
+Checksum (file format 0 only)
+Offset in file 0x91 to 0x92 (little endian)
+CRC-16 (IBM-3740, also called CCITT-FALSE) over 0x00 to 0x90 inclusive
+The header is covered.
 
 ######################################################
 
@@ -62,11 +76,11 @@ Offset in file 0x2e (b4-b2)
 
 Lower octave shift
 Offset in file 0x2e (b1-b0) and 0x2f (b7-b6)
-0 = -6 . . . 6 = 0 . . . 12 = +6
+1 = -6 . . . 7 = 0 . . . 13 = +6
 
 Upper octave shift
 Offset in file 0x2f (b5-b2)
-0 = -6 . . . 6 = 0 . . . 12 = +6
+1 = -6 . . . 7 = 0 . . . 13 = +6
 
 Lower sustain pedal
 Offset in file 0x2f (b1)
@@ -112,16 +126,21 @@ Transpose On/Off
 Offset in file 0x30 (b0)
 0 = OFF
 1 = ON
-Note: the keyboard sometimes leaves this ON with a transpose of 0, and shows no
-transpose light when that happens.
+Note: this is set the first time the transpose is changed and is never cleared
+again, so it stays ON after the transpose is put back to 0. The transpose light
+is on only when this is ON and the transpose is not 0.
 
 Transpose
 Offset in file 0x31 (b7-b4)
 0 = -6 . . . 6 = 0 . . . 12 = +6
+Note: while Transpose On/Off is OFF this holds 7 (+1) on every file seen, and
+means nothing.
 
 Part mix (lower/upper balance)
 Offset in file 0x31 (b3-b0) and 0x32 (b7-b5)
 linear scale 0 - 127
+64 = both parts at full level. Above 64 the lower part is turned down, below 64
+the upper part.
 
 Gain
 Offset in file 0x32 (b4-b0) and 0x33 (b7-b6)
@@ -145,10 +164,11 @@ Offset in file 0x33 (b1)
 0 = OFF
 1 = ON
 
-Drawbar Live/Sync
+Drawbar Live
 Offset in file 0x33 (b0)
-0 = Sync
-1 = Live
+0 = OFF
+1 = ON
+Note: Drawbar Sync is a momentary command and is not stored.
 
 Unused
 Offset in file 0x34 to 0x39
