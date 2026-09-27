@@ -48,4 +48,4 @@ fi
 
 # build doc web site
 
-cat ./out/*-stage.md >./index.md
+cat ./out/*-stage.md ./out/*-electro.md >./index.md
